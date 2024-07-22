@@ -1,6 +1,17 @@
 version: "3.8"
 
 services:
+    faststream_service:
+        container_name: faststream_service_container
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8000:8000"
+        depends_on:
+            - zookeeper
+            - kafka
+
     zookeeper:
         image: bitnami/zookeeper:latest
         ports:
@@ -25,13 +36,3 @@ services:
             - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
         depends_on:
             - zookeeper
-
-    faststream_service:
-        container_name: faststream_service_container
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - "8000:8000"
-        depends_on:
-            - kafka
