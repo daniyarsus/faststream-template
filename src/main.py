@@ -3,15 +3,17 @@ from pydantic import BaseModel
 
 from faststream.kafka.fastapi import KafkaRouter, Logger
 
-router = KafkaRouter("kafka:9092")
+KAFKA_LOCAL = "kafka:9092"
+KAFKA_AWS = 'example:9092'
+
+router = KafkaRouter(KAFKA_AWS)
 
 
 @router.subscriber("test")
 @router.publisher(topic="response")
 @router.publisher(topic="hippo")
-async def hello():
-    print("hellooooo!!!")
-
+async def hello(msg_body: dict):
+    print({'msg': msg_body['msg']})
 
 @router.subscriber("response")
 async def response():
@@ -28,10 +30,10 @@ async def hello_http():
     return "Hello, HTTP!"
 
 
-@router.get(path="/send")
-async def send_message():
+@router.post(path="/send")
+async def send_message(name: str):
     await router.broker.publish(
-        message={"msg": "Hello, Kafka!"},
+        message={"msg": f"Hello, {name}!"},
         topic="test"
     )
     return {"status": "message sent"}
